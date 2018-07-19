@@ -1,6 +1,8 @@
 package org.superbiz.moviefun.albums;
 
 import org.apache.tika.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,6 +17,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.LogManager;
 
 import static java.lang.String.format;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
@@ -23,8 +26,10 @@ import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
 @RequestMapping("/albums")
 public class AlbumsController {
 
+
     private final AlbumsBean albumsBean;
     private final BlobStore blobStore;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AlbumsController(AlbumsBean albumsBean, BlobStore blobStore) {
         this.albumsBean = albumsBean;
@@ -34,6 +39,7 @@ public class AlbumsController {
 
     @GetMapping
     public String index(Map<String, Object> model) {
+        logger.debug("Logger index test");
         model.put("albums", albumsBean.getAlbums());
         return "albums";
     }
@@ -46,14 +52,17 @@ public class AlbumsController {
 
     @PostMapping("/{albumId}/cover")
     public String uploadCover(@PathVariable Long albumId, @RequestParam("file") MultipartFile uploadedFile) {
-        System.out.println("Uploading cover for album with id " + albumId);
+       // System.out.println("Uploading cover for album with id " + albumId);
+        logger.debug("Uploading cover for album with id {}", albumId);
 
         if (uploadedFile.getSize() > 0) {
             try {
                 tryToUploadCover(albumId, uploadedFile);
 
             } catch (IOException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
+                logger.error("There was an error while uploading album cover", e);
+
             }
         }
 
